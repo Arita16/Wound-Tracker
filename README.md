@@ -51,7 +51,13 @@ This repository contains all the necessary codes and resources to reproduce our 
 1. **WOUND APP**  
    - Runs the TensorFlow-based model.  
 2. **WOUND_APP_OV**  
-   - Utilizes OpenVINO-optimized model for execution on Intel hardware.  
+   - Utilizes OpenVINO-optimized model for execution on Intel hardware.
+  
+### **Python Notebooks:**  
+1. **wound_model.ipynb**  
+   - Conains the codes for training the ResNet50-Deeplabv3+ model.  
+2. **wound_coloranalysis.ipynb**  
+   - Contains the codes for performing kmeans clustering and classification of the wounds.  
 
 ---
 
