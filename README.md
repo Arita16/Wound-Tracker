@@ -1,4 +1,8 @@
 # **Heal AI: Wound Diagnosis and Prognosis Assistant**  
+
+<img src="https://github.com/user-attachments/assets/25ac9a12-f691-42a0-b8c7-39dedf81ad86" alt="Heal AI Banner" width="600"/>  
+
+
 ### Submission to **Intel AI Hackathon** at **IEEE INDICON 2024**  
 
 ---
