@@ -55,7 +55,7 @@ This repository contains all the necessary codes and resources to reproduce our 
   
 ### **Python Notebooks:**  
 1. **wound_model.ipynb**  
-   - Conains the codes for training the ResNet50-Deeplabv3+ model.  
+   - Contains the codes for training the ResNet50-Deeplabv3+ model.  
 2. **wound_coloranalysis.ipynb**  
    - Contains the codes for performing kmeans clustering and classification of the wounds.  
 
