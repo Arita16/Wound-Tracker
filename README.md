@@ -48,9 +48,9 @@ The model was trained on the [Wound Segmentation Dataset](https://www.kaggle.com
 This repository contains all the necessary codes and resources to reproduce our results.  
 
 ### **Web Applications:**  
-1. **WOUND APP**  
+1. **wound_app_tf**  
    - Runs the TensorFlow-based model.  
-2. **WOUND_APP_OV**  
+2. **wound_app_ov**  
    - Utilizes OpenVINO-optimized model for execution on Intel hardware.
   
 ### **Python Notebooks:**  
