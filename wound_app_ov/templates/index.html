@@ -41,6 +41,7 @@
         <div class="grid-item">
             <h3>Process Image</h3>
             <form action="/process_image" method="get">
+                <input type="hidden" name="image_name" value="{{ image_name }}">
                 <button type="submit">Process Image</button>
             </form>
             {% if overlayed_name %}
@@ -52,7 +53,8 @@
     {% if diagnosis %}
     <div class="diagnosis-result">
         <h3><span style="color:blue;">Diagnosis:</span> {{ diagnosis }}</h3>
-    {% endif %}
     </div>
+    {% endif %}
+
 </body>
 </html>

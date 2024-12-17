@@ -1,4 +1,4 @@
-from flask import Flask, render_template,  redirect, url_for
+from flask import Flask, render_template,  redirect, url_for, request
 import cv2
 import numpy as np
 import os
@@ -8,6 +8,8 @@ import pandas as pd
 from scipy.spatial.distance import cdist
 import openvino as ov
 from notebook_utils import download_file, device_widget
+import datetime
+import time  # Optional for adding a delay
 
 
 app = Flask(__name__)
@@ -43,6 +45,7 @@ def index():
 @app.route('/open_camera', methods=['GET'])
 def open_camera():
     # Open camera feed
+    cleanup_old_images(folder="static/image", threshold=60)
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
         return "Error: Could not access the webcam.", 500
@@ -89,18 +92,33 @@ def open_camera():
         resized_image = cv2.resize(captured_image, (224, 224))
 
         # Save the resized image
-        image_path = "./static/image/captured_image.png"
+        # Generate a unique filename using timestamp
+        timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
+        image_name = f"captured_image_{timestamp}.png"
+        image_path = os.path.join("static", "image", image_name)
+
         cv2.imwrite(image_path, resized_image)
 
-        # Pass image name to the template for displaying
-        return render_template('index.html', image_name='captured_image.png')
+        # Pass the unique image name back to the template
+        return render_template('index.html', image_name=image_name)
+
+
+        # # Pass image name to the template for displaying
+        # return render_template('index.html', image_name='captured_image.png')
 
     return redirect(url_for('index'))
 
 @app.route('/process_image', methods=['GET'])
 def process_image():
 
-    image_path = "./static/image/captured_image.png"
+    # Retrieve the unique image name from query parameters
+    image_name = request.args.get('image_name', None)
+
+    if image_name is None:
+        return "Image not found", 404
+
+    image_path = os.path.join("static", "image", image_name)
+
     if not os.path.exists(image_path):
         return "Image not found", 404
 
@@ -117,13 +135,17 @@ def process_image():
     # y_pred = cv2.morphologyEx(y_pred, cv2.MORPH_OPEN, kernel, iterations=1) 
     overlay = overlay_mask_boundary(cv2.cvtColor(cv2.imread(image_path),cv2.COLOR_BGR2RGB), y_pred)
 
-    overlay_path = "./static/image/overlayed_image.png"
+    # overlay_path = "./static/image/overlayed_image.png"
+    overlayed_name = f"overlayed_{image_name.split('_')[-1]}"  # Overlay name
+    overlay_path = os.path.join("static", "image", overlayed_name)
     cv2.imwrite(overlay_path, overlay)
 
     image = cv2.imread(image_path)
     masked_image = (image * y_pred)
     # masked_image_rgb = cv2.cvtColor(masked_image, cv2.COLOR_BGR2RGB)
-    masked_image_path = "./static/image/masked_image.png"
+    # masked_image_path = "./static/image/masked_image.png"
+    mask_name = f"mask_{image_name.split('_')[-1]}"  # Mask name from timestamp
+    masked_image_path =  os.path.join("static", "image", mask_name)
     cv2.imwrite(masked_image_path, masked_image)
 
     batman_image = mimg.imread(masked_image_path)
@@ -173,5 +195,14 @@ def process_image():
         category = "Infected"
 
     diagnosis = (f"The wound is in '{category}' category.")
-    return render_template('index.html', image_name='captured_image.png', overlayed_name='overlayed_image.png', diagnosis=diagnosis)
+    return render_template('index.html', image_name=image_name, overlayed_name=overlayed_name, diagnosis=diagnosis)
 
+def cleanup_old_images(folder="static/image", threshold=60):
+    """Delete images older than the threshold in seconds."""
+    now = time.time()
+    for filename in os.listdir(folder):
+        file_path = os.path.join(folder, filename)
+        if os.path.isfile(file_path) and file_path.endswith(".png"):
+            if now - os.path.getmtime(file_path) > threshold:
+                os.remove(file_path)
+                print(f"Deleted old image: {file_path}")
