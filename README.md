@@ -1,6 +1,10 @@
 # **Heal AI: Wound Diagnosis and Prognosis Assistant**  
 
-<img src="https://github.com/user-attachments/assets/25ac9a12-f691-42a0-b8c7-39dedf81ad86" alt="Heal AI Banner" width="600"/>  
+<img src="https://github.com/user-attachments/assets/21b320ea-a816-4c52-b953-5a1970c36a09" alt="Heal AI Banner" width="700"/>  
+
+## Video Demonstrations:
+
+Demo on a Mobile Phone [Click here](https://github.com/user-attachments/assets/7b70a8ac-3e97-40f3-8b2d-0a85c4bfc2f1).
 
 
 ### Submission to **Intel AI Hackathon** at **IEEE INDICON 2024**  
