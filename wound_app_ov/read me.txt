@@ -1,3 +1,4 @@
 1. write activate webpy310
 2. type app.py
 3. type flask run
+flask run --host=0.0.0.0 --port=5000  ## to run in phone when laptop and phone s connected to same network

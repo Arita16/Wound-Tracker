@@ -1,4 +1,4 @@
-from flask import Flask, render_template,  redirect, url_for, request
+from flask import Flask, render_template, redirect, url_for, request
 import cv2
 import numpy as np
 import os
@@ -7,29 +7,33 @@ from scipy.cluster.vq import kmeans
 import pandas as pd
 from scipy.spatial.distance import cdist
 import openvino as ov
-from notebook_utils import download_file, device_widget
 import datetime
-import time  # Optional for adding a delay
-
+import time
 
 app = Flask(__name__)
 
+# OpenVINO model setup
 ir_path = "static/vmodel_wound.xml"
 core = ov.Core()
 model = core.read_model(ir_path)
-device = device_widget()
-compiled_model = core.compile_model(model=model, device_name=device.value)
+compiled_model = core.compile_model(model=model, device_name="CPU")
 input_key = compiled_model.input(0)
 output_key = compiled_model.output(0)
 
+# Cleanup old images
 
+def cleanup_old_images(folder="static/image", threshold=60):
+    now = time.time()
+    for filename in os.listdir(folder):
+        file_path = os.path.join(folder, filename)
+        if os.path.isfile(file_path) and file_path.endswith(".png"):
+            if now - os.path.getmtime(file_path) > threshold:
+                os.remove(file_path)
+                print(f"Deleted old image: {file_path}")
 
-camera = cv2.VideoCapture(0)  # Initialize webcam
-
-
+# Overlay function
 def overlay_mask_boundary(image, mask):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    # mask = mask.squeeze(axis=-1)
     if mask.dtype != np.uint8:
         mask = (mask * 255).astype(np.uint8)
 
@@ -44,23 +48,18 @@ def index():
 
 @app.route('/open_camera', methods=['GET'])
 def open_camera():
-    # Open camera feed
     cleanup_old_images(folder="static/image", threshold=60)
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
         return "Error: Could not access the webcam.", 500
 
-    print("Press 'c' to capture the image, or 'q' to quit.")
     captured_image = None
     while True:
         ret, frame = cap.read()
         if not ret:
             break
 
-        # Determine the desired square dimensions
-        square_dim = min(frame.shape[0], frame.shape[1])  # Take the smaller dimension
-
-        # Crop the frame to the square shape
+        square_dim = min(frame.shape[0], frame.shape[1])
         y_center, x_center = frame.shape[0] // 2, frame.shape[1] // 2
         y_start = y_center - square_dim // 2
         y_end = y_center + square_dim // 2
@@ -69,44 +68,57 @@ def open_camera():
         square_frame = frame[y_start:y_end, x_start:x_end]
 
         square_frame = cv2.flip(square_frame, 1)
-
-        # Resize to the desired display size (optional)
         display_size = 512
         square_frame_resized = cv2.resize(square_frame, (display_size, display_size))
 
-        # Display the square frame
         cv2.imshow('Webcam', square_frame_resized)
 
         key = cv2.waitKey(1) & 0xFF
-        if key == ord('c'):  # Capture image
+        if key == ord('c'):
             captured_image = square_frame
             break
-        elif key == ord('q'):  # Quit
+        elif key == ord('q'):
             break
 
     cap.release()
     cv2.destroyAllWindows()
 
     if captured_image is not None:
-        # Resize image to 224x224 before saving
         resized_image = cv2.resize(captured_image, (224, 224))
-
-        # Save the resized image
-        # Generate a unique filename using timestamp
         timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
         image_name = f"captured_image_{timestamp}.png"
         image_path = os.path.join("static", "image", image_name)
-
         cv2.imwrite(image_path, resized_image)
 
-        # Pass the unique image name back to the template
         return render_template('index.html', image_name=image_name)
 
-
-        # # Pass image name to the template for displaying
-        # return render_template('index.html', image_name='captured_image.png')
-
     return redirect(url_for('index'))
+
+@app.route('/upload_image', methods=['POST'])
+def upload_image():
+    cleanup_old_images(folder="static/image", threshold=60)
+    if 'file' not in request.files:
+        return "No file part", 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return "No selected file", 400
+
+    if file:
+        image = cv2.imdecode(np.frombuffer(file.read(), np.uint8), cv2.IMREAD_COLOR)
+        if image is None:
+            return "Invalid image file", 400
+
+        resized_image = cv2.resize(image, (224, 224))
+        timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
+        image_name = f"uploaded_image_{timestamp}.png"
+        image_path = os.path.join("static", "image", image_name)
+        cv2.imwrite(image_path, resized_image)
+
+        return render_template('index.html', image_name=image_name)
+
+    return "Invalid file", 400
+
 
 @app.route('/process_image', methods=['GET'])
 def process_image():
@@ -197,12 +209,6 @@ def process_image():
     diagnosis = (f"The wound is in '{category}' category.")
     return render_template('index.html', image_name=image_name, overlayed_name=overlayed_name, diagnosis=diagnosis)
 
-def cleanup_old_images(folder="static/image", threshold=60):
-    """Delete images older than the threshold in seconds."""
-    now = time.time()
-    for filename in os.listdir(folder):
-        file_path = os.path.join(folder, filename)
-        if os.path.isfile(file_path) and file_path.endswith(".png"):
-            if now - os.path.getmtime(file_path) > threshold:
-                os.remove(file_path)
-                print(f"Deleted old image: {file_path}")
+
+if __name__ == '__main__':
+    app.run(debug=True)
