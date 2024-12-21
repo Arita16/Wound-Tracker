@@ -4,7 +4,9 @@
 
 ## Video Demonstrations:
 
-Demo on a Mobile Phone [Click here](https://github.com/user-attachments/assets/7b70a8ac-3e97-40f3-8b2d-0a85c4bfc2f1).
+- Demo on a Laptop [Click here](https://github.com/user-attachments/assets/28f1e948-7985-4e12-b2ca-5d59b5ba349c)
+
+- Demo on a Mobile Phone [Click here](https://github.com/user-attachments/assets/7b70a8ac-3e97-40f3-8b2d-0a85c4bfc2f1)
 
 
 ### Submission to **Intel AI Hackathon** at **IEEE INDICON 2024**  
