@@ -15,9 +15,9 @@
 
 ## **Team Name:** IntelMed  
 ### **Team Members:**  
+- **Arita Halder** 
 - **Puspamita Banerjee**  
-- **Swetha A**  
-- **Arita Halder**  
+- **Swetha A**   
 
 ---
 
