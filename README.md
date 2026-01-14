@@ -9,15 +9,15 @@
 - Demo on a Mobile Phone [Click here](https://github.com/user-attachments/assets/7b70a8ac-3e97-40f3-8b2d-0a85c4bfc2f1)
 
 
-### Submission to **Intel AI Hackathon** at **IEEE INDICON 2024**  
+<!-- ### Submission to **Intel AI Hackathon** at **IEEE INDICON 2024**  
 
 ---
 
-## **Team Name:** IntelMed  
+ ## **Team Name:** IntelMed  
 ### **Team Members:**  
 - **Arita Halder** 
 - **Puspamita Banerjee**  
-- **Swetha A**   
+- **Swetha A** -->
 
 ---
 
